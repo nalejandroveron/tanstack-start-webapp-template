@@ -1,0 +1,70 @@
+private pattern auth_server_codegen() {
+  contains `create: $create` => `create: {
+        before: async (session) => {
+          const member = await db
+            .select()
+            .from(schema.member)
+            .where(eq(schema.member.userId, session.userId));
+
+          if (member[0]?.organizationId)
+            return {
+              data: {
+                ...session,
+                activeOrganizationId: member[0]?.organizationId,
+              },
+            };
+
+          return false;
+        },
+      }`,
+  }
+}
+
+pattern set_repo($packageJson, $newPackageJsonName, $pgSchemaLocation, $pgNewSchemaName, $rootRouteLocation, $newRootRouteHtmlName, $dbIndexLocation, $authServerLocation, $generateSchemaAnswer) {
+  sequential {
+    // Replace package.json name
+    bubble($packageJson, $newPackageJsonName) file($body, $name) where {
+      maybe and {
+        $name <: includes $packageJson,
+        $body <: contains `"name": $_` => `"name": "ello"`
+      }
+    },
+    // Replace postgres schema name
+    bubble($pgSchemaLocation, $pgNewSchemaName) file($body, $name) where {
+      maybe and {
+        $name <: includes $pgSchemaLocation,
+        $body <: contains `pgSchema($_)` => `pgSchema('$pgNewSchemaName')`
+      }
+    },
+    // Replace HTML app name
+    bubble($rootRouteLocation, $newRootRouteHtmlName) file ($body, $name) where {
+      maybe and {
+        $name <: includes $rootRouteLocation,
+        $body <: contains `title: $_` => `title: '$newRootRouteHtmlName'`
+      }
+    },
+    // Extend schema to add auth after schema generation.
+    bubble($dbIndexLocation, $generateSchemaAnswer) file ($body, $name) where {
+      maybe and {
+        $name <: includes $dbIndexLocation,
+        $generateSchemaAnswer <: includes "y",
+        and {
+          $body <: contains `import { drizzle } from 'drizzle-orm/postgres-js';` => `import * as auth from './auth-schema';\n\nimport { drizzle } from 'drizzle-orm/postgres-js';`,
+          $body <: contains `{ schema: {}, }` => `{\n  schema: {\n    ...auth,\n  }\n}`,
+        }
+      }
+    },
+    // Extend auth server to add schema and functions after schema generation.
+    bubble($authServerLocation, $generateSchemaAnswer) file ($body, $name) where {
+      maybe and {
+        $name <: includes $authServerLocation,
+        $generateSchemaAnswer <: includes "y",
+        and {
+          $body <: contains `import { db } from '../../db';` => `import { db } from '../../db';\nimport * as schema from '../../db/auth-schema';`,
+          $body <: contains `provider: $provider` => `schema,\n    provider: $provider`,
+          $body <: auth_server_codegen()
+        }
+      }
+    },
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "name": "tanstack-start-webapp-template",
+  "type": "module",
+  "scripts": {
+    "dev": "vinxi dev",
+    "build": "vinxi build",
+    "start": "vinxi start",
+    "dz": "npx drizzle-kit",
+    "codegen": "./scripts/codegen.sh",
+    "lint": "biome check --write && tsc --noEmit",
+    "auth:generate": "npx @better-auth/cli@latest generate --config ./app/lib/auth.server.ts --output ./db/auth-schema.ts"
+  },
+  "dependencies": {
+    "@heroicons/react": "^2.2.0",
+    "@tanstack/react-form": "^1.0.0",
+    "@tanstack/react-router": "^1.112.0",
+    "@tanstack/react-start": "^1.112.3",
+    "arktype": "^2.1.2",
+    "better-auth": "^1.2.2",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.40.0",
+    "pg": "^8.13.3",
+    "postgres": "^3.4.5",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^3.0.2",
+    "ts-pattern": "^5.6.2",
+    "vinxi": "^0.5.3"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@tailwindcss/vite": "^4.0.9",
+    "@types/pg": "^8.11.11",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^4.3.4",
+    "drizzle-kit": "^0.30.5",
+    "tailwindcss": "^4.0.9",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
+}

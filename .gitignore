@@ -1,0 +1,3 @@
+node_modules/
+app/routeTree.gen.ts
+.env
